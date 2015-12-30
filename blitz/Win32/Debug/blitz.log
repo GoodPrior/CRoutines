@@ -1,0 +1,21 @@
+﻿Build started 3/11/2015 2:23:29 PM.
+     1>Project "D:\blitz-0.10\blitz\blitz.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Intel\Composer XE 2013 SP1\bin\ia32\icl.exe /c /Qvc12 /Qlocation,link,"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin" /I"D:\blitz-0.10\\" /ZI /nologo /W3 /Od /Qftz- /D __INTEL_COMPILER=1400 /D WIN32 /D _DEBUG /D _LIB /D BZ_DEBUG /D _MBCS /EHsc /RTC1 /MTd /GS /Zc:wchar_t /Zc:forScope /GR /Fo"Win32\Debug\\" /Fd"Win32\Debug\vc120.pdb" /Gd /TP ..\src\globals.cpp
+         globals.cpp
+       Lib:
+         C:\Program Files (x86)\Intel\Composer XE 2013 SP1\bin\ia32\xilib.exe /OUT:"Win32\Debug\blitz.lib" /NOLOGO Win32\Debug\globals.obj
+         xilib: executing 'lib'
+         blitz.vcxproj -> D:\blitz-0.10\blitz\Win32\Debug\blitz.lib
+       PostBuildEvent:
+         mkdir "D:\blitz-0.10\lib\Win32"
+         copy  "D:\blitz-0.10\blitz\Win32\Debug\blitz.lib" "D:\blitz-0.10\lib\Win32\blitz_d.lib"
+         
+         :VCEnd
+         A subdirectory or file D:\blitz-0.10\lib\Win32 already exists.
+                 1 file(s) copied.
+     1>Done Building Project "D:\blitz-0.10\blitz\blitz.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.13
