@@ -335,31 +335,43 @@ namespace IntelInterp {
 		else *j = jl;
 	}
 
+	/**** Matlab-alike Interface ***********/
+	inline double search_eval4_1d(double* breaks, int nBreaks, double* coefs,
+		double site, int idx)
+	{
+		int cellOfSite;
+		locate(breaks, nBreaks - 2, site, &cellOfSite);
+		double XSiteToLeft = site - breaks[cellOfSite];
+		return receval4_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 4);
+	}
+
+
+#ifdef INTERP_CLASS
 	class CubicSplineRaw
 	{
 	public:
-		int mXDim = 0;
+		int mXDim;
 		CubicSplineRaw& set_XDim(int XDim) { mXDim = XDim; return *this; }
 
-		int mVecDim = 0;
+		int mVecDim;
 		CubicSplineRaw& set_VecDim(int VecDim) { mVecDim = VecDim; return *this; }
 
-		int mCoefsMemorySize = 0;
+		int mCoefsMemorySize;
 		CubicSplineRaw& set_CoefsMemorySize(int CoefsMemorySize) { mCoefsMemorySize = CoefsMemorySize; return *this; }
 
-		int mCoefsSize[MAXDIM] = { 0 };
+		int mCoefsSize[MAXDIM];
 		CubicSplineRaw& set_CoefsSize(int* CoefsSize) { memcpy(mCoefsSize, CoefsSize, MAXDIM*sizeof(int)); return *this; }
 
-		int mSOrder[MAXDIM] = { 0 };
+		int mSOrder[MAXDIM];
 		CubicSplineRaw& set_SOrder(int* SOrder) { memcpy(mSOrder, SOrder, MAXDIM*sizeof(int)); return *this; }
 
-		int mXPts[MAXDIM] = { 0 };
+		int mXPts[MAXDIM];
 		CubicSplineRaw& set_XPts(int* XPts) { memcpy(mXPts, XPts, MAXDIM*sizeof(int)); return *this; }
 
 		double* mXGrid[MAXDIM];
 		CubicSplineRaw& set_XGrid(double** XGrid) { memcpy(mXGrid, XGrid, MAXDIM*sizeof(double*)); return *this; }
 
-		double* mCoefs = 0;
+		double* mCoefs;
 		CubicSplineRaw& set_Coefs(double* Coefs) { mCoefs = Coefs; return *this; }
 
 		inline void alloc()
@@ -479,4 +491,5 @@ namespace IntelInterp {
 
 		Array<double, 2> veceval_continuous(Array<double, 2>* Sites, Array<int, 2>* CellOfSite, int StartIdx, int EndIdx);
 	};
+#endif
 }
