@@ -145,6 +145,19 @@ namespace IntelInterp {
 		return r;
 	}
 
+	/*
+	* recursive evaluation doesn't allow compiler to optimize
+	*/
+	inline double receval2_1d(double* Coefs, double* XSite, int* CellOfSite, int Shift)
+	{
+		double r;
+		double* pCoefs = Coefs + Shift + (*CellOfSite + 1) * 2;
+		r = *(--pCoefs);
+		r *= *XSite;
+		r += *(--pCoefs);
+		return r;
+	}
+
 	inline double eval4_1d(double* XGrid, double* Coefs, int* CoefsSize,
 		double* XSite, int* CellOfSite, int VecIdx)
 	{
@@ -343,6 +356,15 @@ namespace IntelInterp {
 		locate(breaks, nBreaks - 2, site, &cellOfSite);
 		double XSiteToLeft = site - breaks[cellOfSite];
 		return receval4_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 4);
+	}
+
+	inline double search_eval2_1d(double* breaks, int nBreaks, double* coefs,
+		double site, int idx)
+	{
+		int cellOfSite;
+		locate(breaks, nBreaks - 2, site, &cellOfSite);
+		double XSiteToLeft = site - breaks[cellOfSite];
+		return receval2_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 2);
 	}
 
 
