@@ -32,6 +32,11 @@ using namespace blitz;
 	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
 	double* _##var = mxGetPr(__##var)
 
+#define GET_IMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
+	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
+	int* _##var = (int*) mxGetData(__##var)
+
 // GET_DMAT gets data from matlab caller's workspace. One needs to specify number of dimensions and each dimension.
 #define GET_DMAT(var,N,...) GET_DMAT0(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
@@ -56,6 +61,17 @@ using namespace blitz;
 	} \
 	Array<double, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
+#define GET_IM(var,N) GET_IMAT0(var); \
+	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,N> _##var##dim; \
+	for (int i = 0; i < N ; i++) \
+	{ \
+	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
+	} \
+	Array<int, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
 // GET_DV is routine to treat input as a one dimensional vector
 // Since matlab always treats vector as a matrix, sometimes forcing it to be one-dimenion has great convenience for indexing
 #define GET_DV(var) GET_DMAT0(var); \
@@ -76,9 +92,10 @@ using namespace blitz;
 	Array<double, N> var(_##var, shape(__VA_ARGS__), neverDeleteData, ColumnMajorArray<N>());
 
 // PUT is put the variable to matlab's caller workspace
-#define PUT(var,...)  memcpy(_##var, var.data(), sizeof(double) * var.numElements()); mexPutVariable("caller",#var,__##var);
+// #define PUT(var,...)  memcpy(_##var, var.data(), sizeof(double) * var.numElements()); mexPutVariable("caller",#var,__##var);
+#define PUT(var,...) mexPutVariable("caller",#var,__##var);
 // PUT_ is to put the variable to matlab's caller workspace under the name var_
-#define PUT_(var,...)  memcpy(_##var, var.data(), sizeof(double) * var.numElements()); mexPutVariable("caller",#var"_",__##var);
+#define PUT_(var,...)  mexPutVariable("caller",#var"_",__##var);
 
 // DV is a double vector
 template <class T> class Vector{
