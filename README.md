@@ -124,7 +124,7 @@ Vector<T> provided with the header file, one can simply create a memory view
 of the first dimension of the array:
 
 ```c++
-Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3))
+MatlabMatrix::Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3))
 ```
 
 And the loop body of the mex file can be rewritten as following:
@@ -133,7 +133,7 @@ And the loop body of the mex file can be rewritten as following:
 	{
 		for (int i2 = 1; i2 <= Dim2 ; i2++)
 		{
-			Vector<double> firstDimensionOfC(Dim1, &(1,i2,i3));
+			MatlabMatrix::Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3));
 			for (int i1 = 1; i1 <= Dim1 ; i1++)
 			{
 				firstDimensionOfC(i1) = A(i1, i2, i3)*B(i1, i2);
