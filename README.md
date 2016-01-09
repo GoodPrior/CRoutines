@@ -81,9 +81,6 @@ and therefore most of matlab codes can be directly copied.
 3. Output variable (C here) should be constructed beforehand. And a PUT(C) is used to post output to the workspace.
 
 ## Documentation and Implementation
-These macros greatly facilicate production, but they are compactly implemented.
-Therefore it's convenient to describe the usage of each macro and make sure users understand what's behind.
-
 The key implementation is through (1) [Blitz++](http://sourceforge.net/projects/blitz/),
 a powerful (and the best IMO) array template in C++. (2) The mex function mexGetVariable(), mexPutVariable().
 
