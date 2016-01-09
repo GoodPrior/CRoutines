@@ -132,8 +132,12 @@ namespace MatlabMatrix {
 #define IV Vector<int>
 
 
-// DM is to declare double array
-// #define DM(N) Array<double,N>
+// DM is to create view of double array
+#define DM(var,data,N,...) \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	Array<double,N> var(data,shape(__VA_ARGS__),neverDeleteData,_##var##storage);
+
 #define DM0(var,N,...) \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
 	_##var##storage.base() = 1; \
