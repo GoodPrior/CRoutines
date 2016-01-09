@@ -142,7 +142,7 @@ And the loop body of the mex file can be rewritten as following:
 		}
 	}
 ```
-This reduces overhead of computing stride and simplifies coding effort for large arrays.
+This reduces overhead of computing stride and simplifies coding effort for large-dimension arrays.
 Notice it should be clear that the array storage is column-major.
 
 What GET_DM() actually does is to get variable from the caller workspace,
