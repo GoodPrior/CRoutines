@@ -44,6 +44,7 @@ C = DoSomething(A,B,Dim1,Dim2,Dim3);
 
 can be replaced by the following mex file:
 ```C++
+#include "mex.h"
 #include "MatlabMatrix.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
