@@ -81,9 +81,6 @@ and therefore most of matlab codes can be directly copied.
 3. Output variable (C here) should be constructed beforehand. And a PUT(C) is used to post output to the workspace.
 
 ## Documentation and Implementation
-These macros greatly facilicate production, but they are compactly implemented.
-Therefore it's convenient to describe the usage of each macro and make sure users understand what's behind.
-
 The key implementation is through (1) [Blitz++](http://sourceforge.net/projects/blitz/),
 a powerful (and the best IMO) array template in C++. (2) The mex function mexGetVariable(), mexPutVariable().
 
@@ -127,7 +124,7 @@ Vector<T> provided with the header file, one can simply create a memory view
 of the first dimension of the array:
 
 ```c++
-Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3))
+MatlabMatrix::Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3))
 ```
 
 And the loop body of the mex file can be rewritten as following:
@@ -136,7 +133,7 @@ And the loop body of the mex file can be rewritten as following:
 	{
 		for (int i2 = 1; i2 <= Dim2 ; i2++)
 		{
-			Vector<double> firstDimensionOfC(Dim1, &(1,i2,i3));
+			MatlabMatrix::Vector<double> firstDimensionOfC(Dim1, &C(1,i2,i3));
 			for (int i1 = 1; i1 <= Dim1 ; i1++)
 			{
 				firstDimensionOfC(i1) = A(i1, i2, i3)*B(i1, i2);
@@ -145,7 +142,7 @@ And the loop body of the mex file can be rewritten as following:
 		}
 	}
 ```
-This reduces overhead of computing stride and simplifies coding effort for large arrays.
+This reduces overhead of computing stride and simplifies coding effort for large-dimension arrays.
 Notice it should be clear that the array storage is column-major.
 
 What GET_DM() actually does is to get variable from the caller workspace,
