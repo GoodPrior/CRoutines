@@ -74,8 +74,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 One may have noticed some features in the mex file:
 
 1. Arrays are assesed with braces (instead of brackets), 1-based (instead of 0-based),
-column-major storage (instead of row-major). This keeps things close to matlab
-and therefore most of codes can be directly copied.
+column-major storage (instead of row-major). Thiese keep syntax close to matlab
+and therefore most of matlab codes can be directly copied.
 2. With keyword ALL, slicing can be done similary as : in matlab.
 3. Output variable (C here) should be constructed beforehand. And a PUT(C) is used to post output to the workspace.
 
@@ -98,8 +98,8 @@ if (__var == 0) mexErrMsgTxt("Variable doesn't exist: var");
 if (!mxIsDouble(__var)) mexErrMsgTxt("Not double: var");
 double var = *mxGetPr(__var);
 ```
-Similary for GET_INT(). Notice GET_INT() still reads a double scalar from matlab,
-and only converts it to integer in C. (Matlab default type is double, and we usually do not
+Similaly for GET_INT(). Notice GET_INT() still reads a double scalar from matlab,
+and only converts it to int type in C. (Matlab default type is double, and we usually do not
 convert it to (int32) before usage even if it's used as int).
 
 #### GET_DM(var, numOfDims), GET_IM(var, numOfDims)
@@ -115,12 +115,12 @@ indexing and slicing as shown in the example.
 ...
 C(i1, i2, i3) = A(i1, i2, i3)*B(i1, i2);
 ...
-C(ALL, i2, i3) = A(ALL, i2, i3)*B(i1, i2);
+C(ALL, i2, i3) = A(ALL, i2, i3);
 ...
 ```
 
 As expected, the indexing returns a reference and therefore the array object can be used
-as helper class
+as a helper
 to facilitate memory access as well. With a simple class
 Vector<T> provided with the header file, one can simply create a memory view
 of the first dimension of the array:
@@ -145,7 +145,7 @@ And the loop body of the mex file can be rewritten as following:
 	}
 ```
 This reduces overhead of computing stride and simplifies coding effort for large arrays.
-Notice it should be clear that the array is column-major.
+Notice it should be clear that the array storage is column-major.
 
 What GET_DM() actually does is to get variable from the caller workspace,
 extract the data pointer, and construct a blitz array object reference to the data.
@@ -164,7 +164,7 @@ This macro is provided because matlab always treats a vector as two-dimensional.
 Sometimes it's convenient to force the vector read to be single dimension.
 
 #### Error Checking and Parallel
-Compile with -DBZ_DEBUG to enable bounds checking
+Compile with -DBZ_DEBUG to enable bounds checking (slow)
 
 Compile with -DBZ_THREADSAFE when using OpenMP
 
