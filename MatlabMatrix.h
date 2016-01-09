@@ -98,34 +98,36 @@ using namespace blitz;
 #define PUT_(var,...)  mexPutVariable("caller",#var"_",__##var);
 
 // DV is a double vector
-template <class T> class Vector{
-public:
-	int pts;
-	T* data;
-	Vector(int _pts) :pts(_pts) {}
-	Vector(int _pts, T* _data) :pts(_pts), data(_data - 1){}
-	T& operator()  (int idx)
-	{
-		// 1 based
-		return data[idx];
-	}
+namespace MatlabMatrix {
+	template <class T> class Vector{
+	public:
+		int pts;
+		T* data;
+		Vector(int _pts) :pts(_pts) {}
+		Vector(int _pts, T* _data) :pts(_pts), data(_data - 1){}
+		T& operator()  (int idx)
+		{
+			// 1 based
+			return data[idx];
+		}
 
-	const T& operator() (int idx) const
-	{
-		// 1 based
-		return data[idx];
-	}
+		const T& operator() (int idx) const
+		{
+			// 1 based
+			return data[idx];
+		}
 
-	void operator >> (T* dest)
-	{
-		memcpy(dest, data + 1, sizeof(T)*pts);
-	}
+		void operator >> (T* dest)
+		{
+			memcpy(dest, data + 1, sizeof(T)*pts);
+		}
 
-	void operator << (T* dest)
-	{
-		memcpy(data + 1, dest, sizeof(T)*pts);
-	}
-};
+		void operator << (T* dest)
+		{
+			memcpy(data + 1, dest, sizeof(T)*pts);
+		}
+	};
+}
 #define DV Vector<double>
 #define IV Vector<int>
 
