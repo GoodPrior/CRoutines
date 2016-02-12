@@ -132,6 +132,7 @@ namespace MatlabMatrix {
 #define IV Vector<int>
 
 
+
 // DM is to create view of double array
 #define DM(var,data,N,...) \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
@@ -153,3 +154,8 @@ namespace MatlabMatrix {
 	memset(var.data(),0,sizeof(int)*var.numElements());
 
 #define ALL Range::all()
+
+template<class T, int dim> void zeros(blitz::Array<T, dim> v)
+{
+	memset(v.data(), 0, sizeof(T)*v.numElements());
+}
