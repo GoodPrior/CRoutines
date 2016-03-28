@@ -1,4 +1,5 @@
-# MatlabMatrix.h - a set of macros to convert matlab code to mex
+# MatlabMatrix.h
+a set of macros to convert matlab code to mex
 
 ## Introduction
 We prototype models in matlab and translate the time-consuming part to CMex for production.
