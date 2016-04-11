@@ -21,7 +21,8 @@
 #define SHFT2(a,b,c) (a)=(b);(b)=(c);
 #define SHFT3(a,b,c,d) (a)=(b);(b)=(c);(c)=(d);
 
-double golden(double ax, double bx, double cx, double (*f)(double, void*), void* params, double tol, double *xmin)
+template <typename Lambda>
+double golden(double ax, double bx, double cx, Lambda f, void* params, double tol, double *xmin)
 {
     double f1,f2,x0,x1,x2,x3;
     int iter = 0;
@@ -35,16 +36,16 @@ double golden(double ax, double bx, double cx, double (*f)(double, void*), void*
 	x2=bx;
 	x1=bx-C*(bx-ax);
     }
-    f1=(*f)(x1, params);
-    f2=(*f)(x2, params);
+    f1=f(x1, params);
+    f2=f(x2, params);
     while (fabs(x3-x0) > tol) {
     	iter++;
 	if (f2 < f1) {
 	    SHFT3(x0,x1,x2,R*x1+C*x3)
-		SHFT2(f1,f2,(*f)(x2, params))
+		SHFT2(f1,f2,f(x2, params))
 	} else {
 	    SHFT3(x3,x2,x1,R*x2+C*x0)
-		SHFT2(f2,f1,(*f)(x1, params))
+		SHFT2(f2,f1,f(x1, params))
 	}
     }
     if (f1 < f2) {
@@ -56,7 +57,8 @@ double golden(double ax, double bx, double cx, double (*f)(double, void*), void*
     }
 }
 
-double brent(double ax, double bx, double cx, double (*f)(double, void*), void* params, double tol, double *xmin)
+template <typename Lambda>
+double brent(double ax, double bx, double cx, Lambda f, void* params, double tol, double *xmin)
 {
     int iter;
     double a,b,d,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
@@ -65,7 +67,7 @@ double brent(double ax, double bx, double cx, double (*f)(double, void*), void* 
     a=(ax < cx ? ax : cx);
     b=(ax > cx ? ax : cx);
     x=w=v=bx;
-    fw=fv=fx=(*f)(x, params);
+    fw=fv=fx=f(x, params);
     while (1) {
 	xm=0.5*(a+b);
 	tol2=2.0*(tol1=tol*fabs(x)+ZEPS);
@@ -94,7 +96,7 @@ double brent(double ax, double bx, double cx, double (*f)(double, void*), void* 
 	    d=CGOLD*(e=(x >= xm ? a-x : b-x));
 	}
 	u=(fabs(d) >= tol1 ? x+d : x+SIGN(tol1,d));
-	fu=(*f)(u, params);
+	fu=f(u, params);
 	if (fu <= fx) {
 	    if (u >= x) a=x; else b=x;
 	    SHFT(v,w,x,u)
@@ -210,3 +212,34 @@ double dbrent(double ax, double bx, double cx, double (*f)(double, double*, void
 #undef MOV3
 #undef NRANSI
 #undef SIGN
+
+template <typename Lambda>
+inline
+double rtbis(Lambda func, void* params, double x1, double x2, double xacc, int maxiter, int* exitflag, int* iter)
+{
+	int j;
+	double dx, f, fmid, xmid, rtb;
+	*exitflag = -2;
+
+	f = func(x1, params);
+	fmid = func(x2, params);
+	if (f*fmid >= 0.0) {
+		*exitflag = -2;
+		// Wenlan: handle corner
+		if (f < 0.0)
+			return x1;
+		else
+			return x2;
+	}
+	rtb = f < 0.0 ? (dx = x2 - x1, x1) : (dx = x1 - x2, x2);
+	for ((*iter) = 1; (*iter) <= maxiter; (*iter)++) {
+		fmid = func(xmid = rtb + (dx *= 0.5), params);
+		if (fmid <= 0.0) rtb = xmid;
+		if (fabs(dx) < xacc || fmid == 0.0) {
+			*exitflag = 1;
+			return rtb;
+		}
+	}
+	*exitflag = 0;
+	return 0.0;
+}

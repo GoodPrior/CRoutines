@@ -27,10 +27,20 @@ using namespace blitz;
 	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
 	double var = *mxGetPr(__##var);
 
+#define GET_SGL(var) mxArray* __##var = mexGetVariable("caller",#var); \
+	if (__##var == 0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
+	float var = (float)*mxGetPr(__##var);
+
 #define GET_DMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
 	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
 	double* _##var = mxGetPr(__##var)
+
+#define GET_FMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
+	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsSingle(__##var)) mexErrMsgTxt("Not single: "#var); \
+	float* _##var = (float*) mxGetData(__##var)
 
 #define GET_IMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
@@ -42,13 +52,13 @@ using namespace blitz;
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
 	Array<double, N> var(_##var, shape(__VA_ARGS__), neverDeleteData, ColumnMajorArray<N>()); \
 	for (int i = 0; i < N ; i++) \
-																{ \
+																	{ \
 		if (*(mxGetDimensions(__##var)+i) != var.extent(i)) { \
 			char errMsg[100]; \
 			sprintf(errMsg,"Dimension Error: "#var" at //d",i); \
 			mexErrMsgTxt(errMsg); \
-																													} \
-													}
+																															} \
+														}
 // GET_DM is the most convenient way to get data from matlab caller's workspace. One just needs to specify the number of dimenions.
 #define GET_DM(var,N) GET_DMAT0(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
@@ -56,10 +66,21 @@ using namespace blitz;
 	_##var##storage.base() = 1; \
 	TinyVector<int,N> _##var##dim; \
 	for (int i = 0; i < N ; i++) \
-	{ \
+		{ \
 	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
-	} \
+		} \
 	Array<double, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_FM(var,N) GET_FMAT0(var); \
+	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,N> _##var##dim; \
+	for (int i = 0; i < N ; i++) \
+		{ \
+	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
+		} \
+	Array<float, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 #define GET_IM(var,N) GET_IMAT0(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
@@ -67,9 +88,9 @@ using namespace blitz;
 	_##var##storage.base() = 1; \
 	TinyVector<int,N> _##var##dim; \
 	for (int i = 0; i < N ; i++) \
-	{ \
+		{ \
 	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
-	} \
+		} \
 	Array<int, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 // GET_DV is routine to treat input as a one dimensional vector
@@ -78,6 +99,7 @@ using namespace blitz;
 	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
 	_##var##storage.base() = 1; \
 	TinyVector<int,1> _##var##dim; \
+	_##var##dim[0] = mxGetNumberOfElements(__##var); \
 	Array<double, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 
@@ -145,7 +167,13 @@ namespace MatlabMatrix {
 	Array<double,N> var(__VA_ARGS__,_##var##storage); \
 	memset(var.data(),0,sizeof(double)*var.numElements());
 
-// DI is to declare integer array
+// FM is to create view of single array
+#define FM(var,data,N,...) \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	Array<float,N> var(data,shape(__VA_ARGS__),neverDeleteData,_##var##storage);
+
+// IM is to declare integer array
 // #define IM(N) Array<int,N>
 #define IM0(var,N,...) \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
@@ -155,7 +183,12 @@ namespace MatlabMatrix {
 
 #define ALL Range::all()
 
+// Zerofy any Array
 template<class T, int dim> void zeros(blitz::Array<T, dim> v)
 {
 	memset(v.data(), 0, sizeof(T)*v.numElements());
 }
+
+// Run matlab code
+#define MATLAB(command) \
+	mexEvalString(#command)
