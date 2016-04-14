@@ -42,6 +42,11 @@ using namespace blitz;
 	if (!mxIsSingle(__##var)) mexErrMsgTxt("Not single: "#var); \
 	float* _##var = (float*) mxGetData(__##var)
 
+#define GET_FMAT0_VIEW(var) const mxArray* __##var = mexGetVariablePtr("caller",#var); \
+	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsSingle(__##var)) mexErrMsgTxt("Not single: "#var); \
+	float* _##var = (float*) mxGetData(__##var)
+
 #define GET_IMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
 	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
@@ -72,6 +77,17 @@ using namespace blitz;
 	Array<double, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 #define GET_FM(var,N) GET_FMAT0(var); \
+	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,N> _##var##dim; \
+	for (int i = 0; i < N ; i++) \
+		{ \
+	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
+		} \
+	Array<float, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_FM_VIEW(var,N) GET_FMAT0_VIEW(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
 	_##var##storage.base() = 1; \
@@ -118,6 +134,8 @@ using namespace blitz;
 #define PUT(var,...) mexPutVariable("caller",#var,__##var);
 // PUT_ is to put the variable to matlab's caller workspace under the name var_
 #define PUT_(var,...)  mexPutVariable("caller",#var"_",__##var);
+
+#define PUT_SCALAR(var,...) {mxArray* __##var = mxCreateDoubleScalar( (double) var); mexPutVariable( "caller", #var, __##var );}
 
 // DV is a double vector
 namespace MatlabMatrix {
