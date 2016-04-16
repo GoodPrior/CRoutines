@@ -37,6 +37,11 @@ using namespace blitz;
 	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
 	double* _##var = mxGetPr(__##var)
 
+#define GET_DMAT0_VIEW(var) const mxArray* __##var = mexGetVariablePtr("caller",#var); \
+	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsDouble(__##var)) mexErrMsgTxt("Not double: "#var); \
+	double* _##var = mxGetPr(__##var)
+
 #define GET_FMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
 	if (!mxIsSingle(__##var)) mexErrMsgTxt("Not single: "#var); \
@@ -48,6 +53,11 @@ using namespace blitz;
 	float* _##var = (float*) mxGetData(__##var)
 
 #define GET_IMAT0(var) mxArray* __##var = mexGetVariable("caller",#var); \
+	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
+	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
+	int* _##var = (int*) mxGetData(__##var)
+
+#define GET_IMAT0_VIEW(var) const mxArray* __##var = mexGetVariable("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
 	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
 	int* _##var = (int*) mxGetData(__##var)
@@ -117,6 +127,34 @@ using namespace blitz;
 	TinyVector<int,1> _##var##dim; \
 	_##var##dim[0] = mxGetNumberOfElements(__##var); \
 	Array<double, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_DV_VIEW(var) GET_DMAT0_VIEW(var); \
+	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,1> _##var##dim; \
+	_##var##dim[0] = mxGetNumberOfElements(__##var); \
+	Array<double, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_FV(var) GET_FMAT0(var); \
+	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,1> _##var##dim; \
+	_##var##dim[0] = mxGetNumberOfElements(__##var); \
+	Array<float, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_FV_VIEW(var) GET_FMAT0_VIEW(var); \
+	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,1> _##var##dim; \
+	_##var##dim[0] = mxGetNumberOfElements(__##var); \
+	Array<float, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_IV_VIEW(var) GET_IMAT0_VIEW(var); \
+	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,1> _##var##dim; \
+	_##var##dim[0] = mxGetNumberOfElements(__##var); \
+	Array<int, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 
 // SET_DM is the most convenient way to prepare output data to matlab.
