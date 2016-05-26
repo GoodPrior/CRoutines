@@ -57,7 +57,7 @@ using namespace blitz;
 	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
 	int* _##var = (int*) mxGetData(__##var)
 
-#define GET_IMAT0_VIEW(var) const mxArray* __##var = mexGetVariable("caller",#var); \
+#define GET_IMAT0_VIEW(var) const mxArray* __##var = mexGetVariablePtr("caller",#var); \
 	if(__##var==0) mexErrMsgTxt("Variable doesn't exist: "#var); \
 	if (!mxIsInt32(__##var)) mexErrMsgTxt("Not int32: "#var); \
 	int* _##var = (int*) mxGetData(__##var)
@@ -76,6 +76,17 @@ using namespace blitz;
 														}
 // GET_DM is the most convenient way to get data from matlab caller's workspace. One just needs to specify the number of dimenions.
 #define GET_DM(var,N) GET_DMAT0(var); \
+	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,N> _##var##dim; \
+	for (int i = 0; i < N ; i++) \
+		{ \
+	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
+		} \
+	Array<double, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_DM_VIEW(var,N) GET_DMAT0_VIEW(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
 	_##var##storage.base() = 1; \
@@ -109,6 +120,17 @@ using namespace blitz;
 	Array<float, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
 #define GET_IM(var,N) GET_IMAT0(var); \
+	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
+	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
+	_##var##storage.base() = 1; \
+	TinyVector<int,N> _##var##dim; \
+	for (int i = 0; i < N ; i++) \
+		{ \
+	_##var##dim[i] = *(mxGetDimensions(__##var)+i); \
+		} \
+	Array<int, N> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+
+#define GET_IM_VIEW(var,N) GET_IMAT0_VIEW(var); \
 	if (mxGetNumberOfDimensions(__##var)!=N) mexErrMsgTxt("No. of Dimensions Error: "#var); \
 	GeneralArrayStorage<N> _##var##storage = ColumnMajorArray<N>(); \
 	_##var##storage.base() = 1; \

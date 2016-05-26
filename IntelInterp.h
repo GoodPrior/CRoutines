@@ -348,6 +348,31 @@ namespace IntelInterp {
 		else *j = jl;
 	}
 
+	inline int locate2(double* xx, int n, double x)
+	{
+		// adjust xx[] to 1-based, 
+		xx--;
+		// return j if x \in [xx[j],xx[j+1])
+		// exception, return n-1 if x==xx[n]; only return n if x > xx[n]
+		int j;
+		int ju, jm, jl;
+
+		jl = 0;
+		ju = n + 1;
+		while (ju - jl > 1) {
+			jm = (ju + jl) >> 1;
+			if (x >= xx[jm])
+				jl = jm;
+			else
+				ju = jm;
+		}
+		if (x == xx[1]) j = 1;
+		else if (x == xx[n]) j = n - 1;
+		else j = jl;
+
+		return j;
+	}
+
 	/**** Matlab-alike Interface ***********/
 	inline double search_eval4_1d(double* breaks, int nBreaks, double* coefs,
 		double site, int idx)
@@ -358,13 +383,57 @@ namespace IntelInterp {
 		return receval4_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 4);
 	}
 
+	inline double search_1d(double* breaks, int nBreaks, double site, double* XSiteToLeft, int* cellOfSite)
+	{
+		locate(breaks, nBreaks - 2, site, cellOfSite);
+		*XSiteToLeft = site - breaks[*cellOfSite];
+	}
+	
+	inline double nosearch_eval2_1d(int nBreaks, double* coefs, double XSiteToLeft, int cellOfSite, int idx)
+	{
+		return receval2_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 2);
+	}
+
 	inline double search_eval2_1d(double* breaks, int nBreaks, double* coefs,
 		double site, int idx)
 	{
-		int cellOfSite;
-		locate(breaks, nBreaks - 2, site, &cellOfSite);
-		double XSiteToLeft = site - breaks[cellOfSite];
-		return receval2_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 2);
+		int j;
+		// locate(breaks, nBreaks - 2, site, &cellOfSite);
+		int ju, jm, jl;
+		int n = nBreaks - 1;
+
+		jl = 0;
+		ju = n + 1;
+		while (ju - jl > 1) {
+			jm = (ju + jl) >> 1;
+			if (site >= breaks[jm])
+				jl = jm;
+			else
+				ju = jm;
+		}
+		if (site == breaks[1]) j = 1;
+		else if (site == breaks[n]) j = n - 1;
+		else j = jl;
+
+		double XSiteToLeft = site - breaks[j];
+
+		// return receval2_1d(coefs, &XSiteToLeft, &j, idx*(nBreaks - 1) * 2);
+		/*
+		double r;
+		double* pCoefs = Coefs + Shift + (*CellOfSite + 1) * 2;
+		r = *(--pCoefs);
+		r *= *XSite;
+		r += *(--pCoefs);
+		return r;
+		*/
+
+		int Shift = idx*(nBreaks - 1) * 2;
+		double* pCoefs = coefs + Shift + j*2;
+		double r = pCoefs[0] + pCoefs[1] * XSiteToLeft;
+		// r = *(--pCoefs);
+		// r *= *XSite;
+		// r += *(--pCoefs);
+		return r;
 	}
 
 
