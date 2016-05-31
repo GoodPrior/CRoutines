@@ -383,7 +383,7 @@ namespace IntelInterp {
 		return receval4_1d(coefs, &XSiteToLeft, &cellOfSite, idx*(nBreaks - 1) * 4);
 	}
 
-	inline double search_1d(double* breaks, int nBreaks, double site, double* XSiteToLeft, int* cellOfSite)
+	inline void search_1d(double* breaks, int nBreaks, double site, double* XSiteToLeft, int* cellOfSite)
 	{
 		locate(breaks, nBreaks - 2, site, cellOfSite);
 		*XSiteToLeft = site - breaks[*cellOfSite];
