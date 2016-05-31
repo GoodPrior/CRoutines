@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAXDIM 10
+
 namespace CInterp {
 	/*
 	* recursive evaluation doesn't allow compiler to optimize
