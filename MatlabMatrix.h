@@ -150,12 +150,16 @@ using namespace blitz;
 	_##var##dim[0] = mxGetNumberOfElements(__##var); \
 	Array<double, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
 
+/*
 #define GET_DV_VIEW(var) GET_DMAT0_VIEW(var); \
 	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
 	_##var##storage.base() = 1; \
 	TinyVector<int,1> _##var##dim; \
 	_##var##dim[0] = mxGetNumberOfElements(__##var); \
 	Array<double, 1> var(_##var,_##var##dim,neverDeleteData,_##var##storage);
+	*/
+#define GET_DV_VIEW(var) GET_DMAT0_VIEW(var); \
+	MatlabMatrix::DV var(_##var)
 
 #define GET_FV(var) GET_FMAT0(var); \
 	GeneralArrayStorage<1> _##var##storage = ColumnMajorArray<1>(); \
@@ -205,6 +209,7 @@ namespace MatlabMatrix {
 		T* data;
 		Vector(int _pts) :pts(_pts) {}
 		Vector(int _pts, T* _data) :pts(_pts), data(_data - 1){}
+		Vector(T* _data) : pts(0), data(_data - 1) {}
 		T& operator()  (int idx)
 		{
 			// 1 based
