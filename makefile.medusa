@@ -1,0 +1,8 @@
+MEX = mex
+MKLROOT = /export/apps/intel/mkl
+MATLABROOT = /usr/local/MATLAB/R2013a/extern/include
+all: omp
+omp: myppualMKL_CMEX.c
+	/usr/bin/gcc $^ -Wl,--start-group /export/apps/intel/mkl/lib/intel64/libmkl_intel_lp64.a /export/apps/intel/mkl/lib/intel64/libmkl_core.a /export/apps/intel/mkl/lib/intel64/libmkl_gnu_thread.a -Wl,--end-group -DMX_COMPAT_32  -D_GNU_SOURCE -DMATLAB_MEX_FILE  -I"/share/apps/matlab/R2014b/extern/include" -I"/share/apps/matlab/R2014b/simulink/include" -ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -DNOCHECK -std=c99 -fopenmp -m64 -I/export/apps/intel/mkl/include -DNDEBUG -pthread -Wl,--no-undefined -Wl,-rpath-link,/share/apps/matlab/R2014b/bin/glnxa64  -lpthread -lm -shared  -O -Wl,--version-script,"/share/apps/matlab/R2014b/extern/lib/glnxa64/mexFunction.map" -L"/share/apps/matlab/R2014b/bin/glnxa64" -lmx -lmex -lmat -lm -lstdc++ -o myppualMKL_CMEX.mexa64
+debug: myppualMKL_CMEX.c
+	$(MEX) -g $^ -output myppualMKL_CMEX -Wl,--start-group  $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKLROOT)/lib/intel64/libmkl_core.a $(MKLROOT)/lib/intel64/libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm CFLAGS="\$$CFLAGS -std=c99 -fopenmp -m64 -I$(MKLROOT)/include" LDFLAGS="\$$LDFLAGS -fopenmp"
