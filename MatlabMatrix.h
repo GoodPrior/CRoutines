@@ -16,7 +16,9 @@
 
 using namespace blitz;
 
-// #define MMDEBUG
+#ifndef NDEBUG
+#define MMDEBUG
+#endif
 
 #define MACRO_GET_1(str, i) \
     (sizeof(str) > (i) ? str[(i)] : 0)
